@@ -13,10 +13,10 @@ file_path = os.path.join(current_dir, "ht04.json")  # Path to 'ht.json'
 # Verify the file exists before initializing Firebase
 if not os.path.exists(file_path):
     raise FileNotFoundError(f"The file 'ht.json' was not found at {file_path}")
-
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
-firebase_admin.initialize_app(cred, name='app1')
+if not firebase_admin._apps:
+    # Initialize Firebase Admin SDK
+    cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
+    firebase_admin.initialize_app(cred, name='app1')
 
 # Get Firestore database reference
 db = firestore.client()
