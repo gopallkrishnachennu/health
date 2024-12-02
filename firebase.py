@@ -11,21 +11,6 @@ initialize_firebase()
 db = firestore.client()
 
 
-# # Dynamically construct the file path to the JSON file
-# current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
-# file_path = os.path.join(current_dir, "ht04.json")  # Path to 'ht.json'
-
-# # Verify the file exists before initializing Firebase
-# if not os.path.exists(file_path):
-#     raise FileNotFoundError(f"The file 'ht.json' was not found at {file_path}")
-# if not firebase_admin._apps:
-#     # Initialize Firebase Admin SDK
-#     cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
-#     firebase_admin.initialize_app(cred)
-
-# # Get Firestore database reference
-# db = firestore.client()
-
 
 def signup_user(email: str, password: str, username: str, age: int, gender: str, blood_type: str):
     """
