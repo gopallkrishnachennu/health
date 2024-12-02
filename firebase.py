@@ -2,24 +2,49 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import requests
 
 
 import os
+presigned_url = "https://health-file.s3.us-east-2.amazonaws.com/final.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEB4aCXVzLWVhc3QtMiJIMEYCIQCzz8GeF1KJxdNl9iYl16nTTMZ9nRASafDalpRIf1lwFwIhAJZl6y2Dt1uICIThv5k8mU90CKo6UW0k0r4q5u6sC%2FvKKtQDCMf%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMNTQ1MDA5ODU4Nzk3IgzPicX5zZX6CXmL67oqqAOeJIpPLat9ZF5jG8d35F3KUymcFEZ3hcl1XBsRKxRXYDY2yhTYyY3hSvdpoc3sxoSYsJqhlkk9xF5RyIZvcvr%2FLiD59mpoZibUU%2Fe5K2PBQ6kT2Br%2BatHtxZitKRM97%2BVC3FgbOno7ENF8xFSj4GUZBqPQruxrTqMQUQhXXUDOyX%2FryL%2FNy5r3kAB3c%2Fh9%2FTjCtV46sdaXOOP8Z1lLU5I6blHESDk4RGRaDQwVSuIZY7NX%2Bh9E6W2h9t1u6fww2BsGbbDvKV7YnkijfAt1qzHWxG5zWkZTXztbUP7dlqT0gVPU4Y66z2tAiwSNHyxS9RS2NFBxKuwpSlGX0yMaNCV7QeHBcE7bfpITczTh%2BtnqbNimnXi7v%2BeGR2DZZA2NsnAHly5rKALQlgynH9A9nKQcwNWpHoAVsssMeU9PaE3Nbz1t53BI3IXM7ddh31WiKLMQ5BiZeFbxIAC9LwJFuvs67%2Fo1i8mJnKDloyIKA%2BpBJY2eBhyERrv%2FM1hQfX7Ov4ZFnNwiIjSt%2FLXsAkqK7WMG74a6yWgqamcxuj6uOLiY3sOavd4hVenRMKHluLoGOuMC%2F7k6dCN3iAgfXz5oUGZ3roRohzq5C90ty9p0nlM4EUiEOdVfKAY3ir2ybLJG%2BU%2FAJbMgweJPtwKydGWrj%2B4%2BH25SeQ1SyM%2BVMz3CJ8yDBYc0jbk1S0s17Cl6pOn2enaBN5J8131ozlBRIHHj09UWtKEpjO%2FDttbobJ1OXAPcZonXAZqOoyuLttIv4rBjOlschSDNbCcivYhiBptlpAayZnmZFHScMsu6lL291ucrOteD%2BqKbAgIJvWsY5VhFlfPVMBi%2BNXIMrQSCGUr63DUPuu3dPlbrHPgP1wOofzwaKTtFPyiCtCzi6OGmhLcZBR1dH1S%2B0hm4ZXzU%2FUMh94EYDBZV74uEqXExv9HCkvtZsNkAZXBa6Ga1OxN7H4KZSMtil%2BLeSk4hK9MwNp5ioC0TWZwu%2FVGouZxXWMcCZRA4QdWLBYbwcxAqV21DKrlAnywIM41Z9KNQCg%2BEjyabbBcX1p6WTA%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX5ZI6PDWZTRWZS2U%2F20241202%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20241202T222058Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=c9218e107c2f9ee1f70473b3d7837bf1d68f2d005b8a5b4349f4ec396e24837e"
+try:
+    # Fetch the JSON file
+    response = requests.get(presigned_url)
+    response.raise_for_status()  # Check for HTTP errors
 
-# Dynamically construct the file path to the JSON file
-current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
-file_path = os.path.join(current_dir, "ht04.json")  # Path to 'ht.json'
+    # Parse the JSON content
+    firebase_credentials = response.json()
 
-# Verify the file exists before initializing Firebase
-if not os.path.exists(file_path):
-    raise FileNotFoundError(f"The file 'ht.json' was not found at {file_path}")
-if not firebase_admin._apps:
-    # Initialize Firebase Admin SDK
-    cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
-    firebase_admin.initialize_app(cred)
+    # Initialize Firebase only if it's not initialized yet
+    if not firebase_admin._apps:
+        # Step 2: Pass the loaded JSON content to Firebase credentials
+        cred = credentials.Certificate(firebase_credentials)  # Dynamically loaded credentials
+        firebase_admin.initialize_app(cred, name='health')  # Initialize the Firebase app
+        # Get Firestore database reference
+        db = firestore.client()
 
-# Get Firestore database reference
-db = firestore.client()
+    print("Firebase initialized successfully.")
+except requests.exceptions.RequestException as e:
+    print(f"Error fetching the JSON file: {e}")
+except json.JSONDecodeError as e:
+    print(f"Error parsing the JSON file: {e}")
+except firebase_admin.exceptions.FirebaseError as e:
+    print(f"Error initializing Firebase: {e}")
+
+# # Dynamically construct the file path to the JSON file
+# current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
+# file_path = os.path.join(current_dir, "ht04.json")  # Path to 'ht.json'
+
+# # Verify the file exists before initializing Firebase
+# if not os.path.exists(file_path):
+#     raise FileNotFoundError(f"The file 'ht.json' was not found at {file_path}")
+# if not firebase_admin._apps:
+#     # Initialize Firebase Admin SDK
+#     cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
+#     firebase_admin.initialize_app(cred)
+
+# # Get Firestore database reference
+# db = firestore.client()
 
 
 def signup_user(email: str, password: str, username: str, age: int, gender: str, blood_type: str):
