@@ -2,9 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-import requests
 from firebase_init import initialize_firebase
-import json
 import os
 
 initialize_firebase()
