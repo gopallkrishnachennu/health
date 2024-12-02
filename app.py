@@ -1,4 +1,5 @@
 import streamlit as st
+from firebase import db
 from firebase import signup_user, login_user, check_existing_data
 from data_collection import weekly_data
 import re
