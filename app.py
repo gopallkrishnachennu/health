@@ -11,6 +11,7 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email) is not None
 
+#hello
 # Function to show messages
 def show_message(message: str, is_error: bool = False):
     if is_error:
