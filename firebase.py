@@ -16,7 +16,7 @@ if not os.path.exists(file_path):
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(file_path)  # Ensure the correct path to your credentials
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, name='app1')
 
 # Get Firestore database reference
 db = firestore.client()
