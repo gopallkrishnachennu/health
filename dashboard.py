@@ -26,7 +26,7 @@ response = requests.get(config_url)
 if response.status_code == 200:
     # Parse the JSON content
     config_data = response.json()
-
+    global OPENAI_API_KEY, GOOGLE_API_KEY, SEARCH_ENGINE_ID, EMAIL_ADDRESS, EMAIL_PASSWORD, TWILLO_RECOVERY_CODE, SEND_GRID
     # Now you can access the variables
     OPENAI_API_KEY = config_data.get("OPENAI_API_KEY")
     GOOGLE_API_KEY = config_data.get("GOOGLE_API_KEY")
