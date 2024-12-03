@@ -13,6 +13,29 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+import requests
+import json
+
+# URL of the config.json file
+config_url = "https://health-file.s3.us-east-2.amazonaws.com/config.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjECAaCXVzLWVhc3QtMiJGMEQCIBRZtbKOBt85kJ4azfBca%2FzRdtW7hG%2FgenqIPaJxc8jKAiBHutBVTtwHgdxiN8c2Upg1jTrt5Y3t4VVAZnYC%2BUdPsSrUAwjJ%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAAaDDU0NTAwOTg1ODc5NyIM2%2BOhif7lrxmF5l4aKqgDIK6vkhjCoJjePsQkXhQffr5OzskSeI%2BVuk5o%2BNz6RVWBWai0zdBlp10okFQrqEynNoy2kq4X4GMeTPklItbt%2FHXTwedbYFtjZXzHMjKNbTtZG3OZj1KjFbRUJozDuROZL8MFHwqegbkk%2FGELEbMg0lF%2FBm1LGIJqop2XMX8LytLZAi0n%2FHac2j7lklyo4NveR1D9VPEohnal84DtNU7DtKUxk02Hqi7Dj8G7WhNMbeP8%2F4YLmCq3kx8hOIWO9HorqW%2FdZR2pi9fYn4TR0qabcOYnvQXp%2Fds8fXfWIxO9KfCT5urc%2F2QkqonxTzsc9ZtTRl3IYU471XBKwRk7v5ISeUK8PVC4LjmwX1zzmtKK1LdDK7CV9ojV0KRbqUNp5ZbRuP0ppJB6yiXL6OihxU6iqa%2FAJ64IaeSeLLv%2FUXiPYA%2FbOXK%2BwklAdYLE%2FYUYi%2BXdsI4bYbrM5vZFRndAObB%2Fmxxtmy4o%2FyeszKKrCsQ4krrFa6mCNfabSdPPmzNIVKmN1k35nffK9F5VscSp4Cc0hw99qBKGB9ls%2FM9Mh7oOitCRk8gj4la5qjCh5bi6BjrlArpI2DUPkmPEiN22cUjgZ2TRok44nOTvJoBAIzaW3F7Gr%2BIuy%2BHHmaogGTqNaRBSeQkKjL54j0yl6uzaX%2B3ssxMq98UW7IBwwPhmtltp2SV3YZocTQaXPCXbUwCE1j5bQHC78kQVpSbwYFmSdwesI8IDka5yR1IqQ%2B0H0ITC0mBkRBEiqTrNb%2Bcl%2FakQKLTY8BAzzN4WCunJnAHzFxVEWRjI5f1TthZ17w%2BcZkFAlK5FqEwPrnYsSOs2aXSTigmnaUGutO6D2K9S3VzT5E1C9puMxsQN%2BdOgrNBFnG4sHwlWEI73z3Kt5Xn23NqySv45ZvadGaIcqAtRy4kKOxNlifCdxtp9vtBUoSrEiqyGYlAh8iLDqpe98KEDo4jP8DMoEPlGJIm10jSGU3ipmbD1s5MQWPjYlPLQmNjh6d%2FXSN2sylRiDS96DD0QEDkguYjoY0FCCn%2BG5ov0CZWsUGbqjgHS4rH%2F1g%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX5ZI6PDWW6SWJVVI%2F20241203%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20241203T000116Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=de5b8c65dae50c25d663c9ff30e8dcef4929cd2ee79e0a1a63aa5c8689aa34f9"
+
+# Fetch the JSON data from the URL
+response = requests.get(config_url)
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON content
+    config_data = response.json()
+
+    # Now you can access the variables
+    OPENAI_API_KEY = config_data.get("OPENAI_API_KEY")
+    GOOGLE_API_KEY = config_data.get("GOOGLE_API_KEY")
+    SEARCH_ENGINE_ID = config_data.get("SEARCH_ENGINE_ID")
+    EMAIL_ADDRESS = config_data.get("EMAIL_ADDRESS")
+    EMAIL_PASSWORD = config_data.get("EMAIL_PASSWORD")
+    TWILLO_RECOVERY_CODE = config_data.get("TWILLO_RECOVERY_CODE")
+    SEND_GRID = config_data.get("SEND_GRID")
+
 
 # Dynamically construct the file path to the JSON file
 current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
@@ -23,14 +46,14 @@ if not os.path.exists(file_path_pkl):
     raise FileNotFoundError(f"The file 'hypertension_risk_model.pkl' was not found at {file_path_pkl}")
 
 
-# Load environment variables from the .env file
-load_dotenv()
+# # Load environment variables from the .env file
+# load_dotenv()
 
-# Get API key and Search Engine ID from environment variables
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")  # Email address to send emails from
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Email password or app-specific password
+# # Get API key and Search Engine ID from environment variables
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
+# EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")  # Email address to send emails from
+# EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Email password or app-specific password
 
 # Load the trained machine learning model
 model = joblib.load(file_path_pkl)
